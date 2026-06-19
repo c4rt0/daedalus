@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="10" fill="#0e0e12"/>
+  <!-- Labyrinth — concentric arcs in bronze -->
+  <path d="M32 8 A24 24 0 0 1 56 32" fill="none" stroke="#c2873a" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M32 8 A24 24 0 0 0 8 32" fill="none" stroke="#c2873a" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M32 16 A16 16 0 0 1 48 32" fill="none" stroke="#a06c2e" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M32 16 A16 16 0 0 0 16 32" fill="none" stroke="#a06c2e" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M32 24 A8 8 0 0 1 40 32" fill="none" stroke="#7a5222" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M32 24 A8 8 0 0 0 24 32" fill="none" stroke="#7a5222" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Connecting paths -->
+  <line x1="8" y1="32" x2="16" y2="32" stroke="#c2873a" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="48" y1="32" x2="56" y2="32" stroke="#c2873a" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Center diamond -->
+  <rect x="28" y="28" width="8" height="8" rx="1" fill="#c2873a" transform="rotate(45 32 32)"/>
+  <!-- Bottom trace -->
+  <line x1="24" y1="32" x2="24" y2="40" stroke="#7a5222" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="24" y1="40" x2="16" y2="40" stroke="#a06c2e" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="16" y1="40" x2="16" y2="48" stroke="#a06c2e" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="40" y1="32" x2="40" y2="44" stroke="#a06c2e" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="40" y1="44" x2="32" y2="44" stroke="#a06c2e" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="32" y1="44" x2="32" y2="56" stroke="#c2873a" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
