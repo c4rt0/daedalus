@@ -12,6 +12,7 @@ export function generateContainerfile(config) {
     generateUsers(config),
     generateSshKeys(config),
     generateAutoUpdates(config),
+    generateExtensions(config),
     generateMotd(config),
     generateLogoText(config),
   ]
@@ -170,6 +171,43 @@ function generateAutoUpdates(config) {
   const onBoot = config.updateOnBootSec || '1h'
   const interval = config.updateInterval || '8h'
   return `RUN systemctl enable bootc-fetch-apply-updates.timer && \\\n    mkdir -p /usr/lib/systemd/system/bootc-fetch-apply-updates.timer.d && \\\n    printf '[Timer]\\nOnBootSec=${onBoot}\\nOnUnitInactiveSec=${interval}\\n' \\\n    > /usr/lib/systemd/system/bootc-fetch-apply-updates.timer.d/override.conf`
+}
+
+function generateExtensions(config) {
+  const allExts = [...(config.extensions || [])]
+  if (config.customExtensions) {
+    const custom = config.customExtensions
+      .split(/[\s,]+/)
+      .map(e => e.trim())
+      .filter(Boolean)
+    allExts.push(...custom)
+  }
+  if (!allExts.length) return null
+
+  const unique = [...new Set(allExts)]
+  const lines = []
+
+  lines.push(`# Extensions (sysexts): ${unique.join(', ')}`)
+
+  const configCmds = unique.map(ext =>
+    `mkdir -p /etc/sysupdate.${ext}.d && \\\n    curl -sL -o /etc/sysupdate.${ext}.d/${ext}.conf \\\n    https://extensions.fcos.fr/fedora/${ext}.conf`
+  )
+  lines.push(`RUN ${configCmds.join(' && \\\n    ')}`)
+
+  lines.push(
+    `RUN printf '[Unit]\\nDescription=Download system extensions on first boot\\n` +
+    `After=network-online.target\\nWants=network-online.target\\n` +
+    `ConditionFirstBoot=yes\\n\\n[Service]\\nType=oneshot\\n` +
+    `ExecStart=/usr/bin/systemd-sysupdate update\\n` +
+    `ExecStartPost=/usr/bin/systemctl restart systemd-sysext\\n\\n` +
+    `[Install]\\nWantedBy=multi-user.target\\n' \\\n` +
+    `    > /usr/lib/systemd/system/sysext-firstboot.service && \\\n` +
+    `    systemctl enable sysext-firstboot.service`
+  )
+
+  lines.push(`RUN systemctl enable systemd-sysupdate.timer`)
+
+  return lines.join('\n\n')
 }
 
 function generateMotd(config) {

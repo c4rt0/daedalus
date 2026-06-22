@@ -29,11 +29,14 @@ const initialState = {
   storageRaid: [],
   systemdUnits: [],
   // bootc auto-updates
-  updateStrategy: 'disabled',
+  updateStrategy: 'enabled',
   updateOnBootSec: '1h',
   updateInterval: '8h',
   // Networking
   networkConfig: [],
+  // System extensions (sysexts)
+  extensions: [],
+  customExtensions: '',
 }
 
 function reducer(state, action) {
@@ -87,6 +90,11 @@ function reducer(state, action) {
       return { ...state, storageFiles: [...state.storageFiles, action.payload] }
     case 'REMOVE_STORAGE_FILE':
       return { ...state, storageFiles: state.storageFiles.filter((_, i) => i !== action.index) }
+    case 'ADD_EXTENSION':
+      if (state.extensions.includes(action.payload)) return state
+      return { ...state, extensions: [...state.extensions, action.payload] }
+    case 'REMOVE_EXTENSION':
+      return { ...state, extensions: state.extensions.filter(e => e !== action.payload) }
     case 'ADD_LIST_ITEM':
       return { ...state, [action.field]: [...state[action.field], action.payload] }
     case 'REMOVE_LIST_ITEM':

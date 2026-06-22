@@ -1,12 +1,14 @@
-export async function generateSshKeyPair(comment = 'bootc-wizard') {
-  const keyPair = await crypto.subtle.generateKey('Ed25519', true, ['sign', 'verify'])
+import * as ed from '@noble/ed25519'
+import { sha512 } from '@noble/hashes/sha2.js'
+ed.hashes.sha512 = sha512
 
-  const publicKeyRaw = new Uint8Array(await crypto.subtle.exportKey('raw', keyPair.publicKey))
+export async function generateSshKeyPair(comment = 'daedalus') {
+  const seed = new Uint8Array(32)
+  crypto.getRandomValues(seed)
+
+  const publicKeyRaw = ed.getPublicKey(seed)
   const publicKeyStr = formatOpenSshPublicKey(publicKeyRaw, comment)
-
-  const privateKeyPkcs8 = new Uint8Array(await crypto.subtle.exportKey('pkcs8', keyPair.privateKey))
-  const ed25519Seed = privateKeyPkcs8.slice(16, 48)
-  const privateKeyPem = formatOpenSshPrivateKey(ed25519Seed, publicKeyRaw, comment)
+  const privateKeyPem = formatOpenSshPrivateKey(seed, publicKeyRaw, comment)
 
   return { publicKey: publicKeyStr, privateKeyPem }
 }

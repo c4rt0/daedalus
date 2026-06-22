@@ -15,7 +15,7 @@ export default function UsersStep() {
     setGenerating(true)
     try {
       const username = state.users[userIndex].name || 'user'
-      const pair = await generateSshKeyPair(`${username}@bootc-wizard`)
+      const pair = await generateSshKeyPair(`${username}@daedalus`)
 
       const existing = state.users[userIndex].sshKeys
       const newKeys = existing
@@ -23,10 +23,10 @@ export default function UsersStep() {
         : pair.publicKey
       updateUser(userIndex, 'sshKeys', newKeys)
 
-      setGenerated({ userIndex, pem: pair.pem })
+      setGenerated({ userIndex, pem: pair.privateKeyPem })
       downloadPrivateKey(pair.privateKeyPem, `id_ed25519_${username}`)
     } catch (err) {
-      alert(`Key generation failed: ${err.message}\n\nYour browser may not support Ed25519. Generate a key manually:\n  ssh-keygen -t ed25519`)
+      alert(`Key generation failed: ${err.message}\n\nIn-browser key generation requires HTTPS or localhost.\nGenerate a key manually instead:\n  ssh-keygen -t ed25519`)
     } finally {
       setGenerating(false)
     }
@@ -36,9 +36,8 @@ export default function UsersStep() {
     <div className="step">
       <h2>Users</h2>
       <p className="step-description">
-        FCOS provisions users at first boot via Ignition. The default
-        user is <code>core</code>. Add SSH keys here for access — password
-        login is disabled by default.
+        Users are created in the image via <code>useradd</code>. Add SSH
+        keys for access — password login is disabled by default.
       </p>
 
       {state.users.map((user, i) => (
@@ -73,8 +72,22 @@ export default function UsersStep() {
               >
                 <option value="/bin/bash">/bin/bash</option>
                 <option value="/bin/zsh">/bin/zsh</option>
+                <option value="/bin/fish">/bin/fish</option>
                 <option value="/sbin/nologin">/sbin/nologin</option>
               </select>
+              {user.shell && user.shell !== '/bin/bash' && user.shell !== '/sbin/nologin' && (
+                <span className="form-hint">
+                  The {user.shell.split('/').pop()} package will be installed into the image.
+                  This is separate from extensions, which overlay at runtime.
+                </span>
+              )}
+              {user.shell === '/sbin/nologin' && (
+                <span className="form-hint" style={{ color: 'var(--warning)' }}>
+                  {user.sshKeys || user.passwordHash
+                    ? 'This user has credentials but nologin prevents interactive access.'
+                    : 'This user will not be able to log in interactively.'}
+                </span>
+              )}
             </div>
           </div>
 

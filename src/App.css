@@ -84,6 +84,17 @@ body {
   gap: 0.75rem;
 }
 
+.github-link {
+  color: var(--text);
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.github-link:hover {
+  color: var(--accent);
+}
+
 .snark-message {
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -623,6 +634,33 @@ textarea.mono {
   overflow-y: auto;
 }
 
+.preview-editor {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: #282c34;
+  color: #abb2bf;
+  border: none;
+  padding: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  tab-size: 4;
+}
+
+.preview-actions .btn-active {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.tab-modified {
+  color: var(--accent);
+  margin-left: 2px;
+  font-weight: 700;
+}
+
 /* --- Review step --- */
 .warning-banner {
   padding: 0.75rem 1rem;
@@ -1136,6 +1174,113 @@ button:focus:not(:focus-visible) {
   .workflow-arrow {
     transform: rotate(90deg);
   }
+}
+
+/* --- Extensions step --- */
+.extension-category {
+  margin-bottom: 1.25rem;
+}
+
+.extension-category h3 {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.extensions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.6rem;
+}
+
+.extension-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.75rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-surface);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  transition: border-color 0.15s;
+  position: relative;
+}
+
+.extension-card:hover {
+  border-color: var(--accent);
+}
+
+.extension-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.extension-description {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+}
+
+.extension-badge {
+  font-size: 0.62rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.extension-sources {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.extension-sources h3 {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.extension-sources ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.extension-sources a {
+  color: var(--accent);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.extension-sources a:hover {
+  text-decoration: underline;
+}
+
+.extension-sources li {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.info-banner {
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  background: rgba(90, 154, 106, 0.08);
+  border: 1px solid var(--success);
+  border-radius: var(--radius);
+  color: var(--success);
+  font-size: 0.85rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

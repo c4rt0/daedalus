@@ -7,6 +7,7 @@ const steps = [
   'Branding',
   'Systemd',
   'Updates',
+  'Extensions',
   'Review',
 ]
 

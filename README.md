@@ -1,17 +1,15 @@
 # Daedalus
 
-A web wizard for building custom bootable Linux images. Configure packages, users, firewall rules, and branding through a visual interface — download a Containerfile and build script that produce a ready-to-boot qcow2 disk image.
+A web wizard for building custom bootable Linux images. Configure packages, users, extensions, firewall rules, and branding through a visual interface - download a Containerfile and build script that produce a ready-to-boot qcow2 disk image.
 
-![Daedalus — review step with Containerfile preview](docs/screenshot-review.png)
+![Daedalus - Extensions step with Containerfile preview](docs/screenshot.png)
 
 ## What it does
 
-1. Walk through 9 steps: Base Image, Identity, Users, Packages, Config, Branding, Systemd, Updates, Review
-2. Download the generated files (Containerfile + build.sh)
-3. Run `./build.sh` — it builds the container and creates a bootable disk image
+1. Walk through 10 steps: Base Image, Identity, Users, Packages, Config, Branding, Systemd, Updates, Extensions, Review
+2. Download the generated files as a zip (Containerfile + build.sh)
+3. Run `./build.sh` - it builds the container and creates a bootable disk image
 4. Boot in QEMU, import into Proxmox, or write to USB
-
-![Butane config with systemd units](docs/screenshot-butane.png)
 
 ## Quick start
 

@@ -1,7 +1,7 @@
 {
   "name": "daedalus",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@noble/ed25519": "^3.1.0",
+    "@noble/hashes": "^2.2.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-syntax-highlighter": "^16.1.1"

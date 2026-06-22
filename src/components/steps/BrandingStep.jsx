@@ -63,7 +63,7 @@ export default function BrandingStep() {
         <textarea
           id="motd"
           rows={8}
-          placeholder={`  Welcome to My OS\n  ─────────────────\n  Built with bootc-wizard`}
+          placeholder={`  Welcome to My OS\n  ─────────────────\n  Built with Daedalus`}
           value={state.motd}
           onChange={e => update('motd', e.target.value)}
           className="mono"
@@ -104,7 +104,7 @@ export default function BrandingStep() {
             id="logo-text"
             rows={8}
             className="mono"
-            placeholder={`   _  _  ___\n  | || |/ _ \\\n  | __ | (_) |\n  |_||_|\\___/`}
+            placeholder={` ______   _______  _______  ______   _______  ___      __   __  _______ \n|      | |   _   ||       ||      | |   _   ||   |    |  | |  ||       |\n|  _    ||  |_|  ||    ___||  _    ||  |_|  ||   |    |  | |  ||  _____|\n| | |   ||       ||   |___ | | |   ||       ||   |    |  |_|  || |_____ \n| |_|   ||       ||    ___|| |_|   ||       ||   |___ |       ||_____  |\n|       ||   _   ||   |___ |       ||   _   ||       ||       | _____| |\n|______| |__| |__||_______||______| |__| |__||_______||_______||_______|`}
             value={state.logoText || ''}
             onChange={e => update('logoText', e.target.value)}
           />

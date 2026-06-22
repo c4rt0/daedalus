@@ -97,6 +97,24 @@ export default function ReviewStep() {
           </ReviewSection>
         )}
 
+        {(state.extensions.length > 0 || state.customExtensions?.trim()) && (
+          <ReviewSection title="Extensions">
+            <div className="package-tags">
+              {state.extensions.map(e => (
+                <span key={e} className="tag">{e}</span>
+              ))}
+            </div>
+            {state.customExtensions?.trim() && (
+              <div style={{ marginTop: '0.5rem' }}>
+                <strong>Custom:</strong> {state.customExtensions}
+              </div>
+            )}
+            <div className="form-hint" style={{ marginTop: '0.5rem' }}>
+              Downloaded on first boot via systemd-sysupdate
+            </div>
+          </ReviewSection>
+        )}
+
         {state.motd && (
           <ReviewSection title="MOTD">
             <pre className="review-motd">{state.motd}</pre>

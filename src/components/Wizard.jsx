@@ -8,6 +8,7 @@ import PackagesStep from './steps/PackagesStep'
 import ConfigStep from './steps/ConfigStep'
 import SystemdStep from './steps/SystemdStep'
 import UpdatesStep from './steps/UpdatesStep'
+import ExtensionsStep from './steps/ExtensionsStep'
 import ReviewStep from './steps/ReviewStep'
 
 const steps = [
@@ -19,6 +20,7 @@ const steps = [
   BrandingStep,
   SystemdStep,
   UpdatesStep,
+  ExtensionsStep,
   ReviewStep,
 ]
 
