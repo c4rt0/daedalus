@@ -82,6 +82,42 @@ export default function UpdatesStep() {
           </div>
         </div>
       )}
+
+      <div className="form-group" style={{ marginTop: '2rem' }}>
+        <label>Image builder (for non-qcow2 formats)</label>
+        <div className="strategy-cards">
+          <button
+            className={`image-card ${state.imageBuilder === 'image-builder' ? 'selected' : ''}`}
+            onClick={() => update('imageBuilder', 'image-builder')}
+          >
+            <strong>image-builder</strong>
+            <span className="image-description">
+              The new unified osbuild tool. Supports AMI, VMDK, VHD, GCE.
+              ISO builds are not supported - use bootc-image-builder for ISO.
+            </span>
+          </button>
+
+          <button
+            className={`image-card ${state.imageBuilder === 'bootc-image-builder' ? 'selected' : ''}`}
+            onClick={() => update('imageBuilder', 'bootc-image-builder')}
+          >
+            <strong>bootc-image-builder (legacy)</strong>
+            <span className="image-description">
+              Supports all formats including ISO. Deprecated in RHEL 11 but
+              still the only option for installable ISOs.
+            </span>
+          </button>
+        </div>
+        <span className="form-hint">
+          Only affects non-qcow2 builds. qcow2 always uses <code>bootc install to-disk</code>.
+        </span>
+        {state.imageBuilder === 'image-builder' && (
+          <div className="warning-banner" style={{ marginTop: '0.5rem' }}>
+            ISO builds are not supported with image-builder. Select
+            bootc-image-builder if you need installable ISOs.
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -16,17 +16,27 @@ function downloadFile(content, filename) {
   URL.revokeObjectURL(url)
 }
 
+function dosDateTime() {
+  const d = new Date()
+  const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)
+  const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()
+  return { time, date }
+}
+
 function downloadZip(files, zipName) {
   const enc = new TextEncoder()
   const entries = files.map(f => ({ name: enc.encode(f.name), data: enc.encode(f.content) }))
   const parts = []
   const centralDir = []
   let offset = 0
+  const { time, date } = dosDateTime()
 
   for (const entry of entries) {
     const header = new Uint8Array(30 + entry.name.length)
     const view = new DataView(header.buffer)
     view.setUint32(0, 0x04034b50, true)
+    view.setUint16(10, time, true)
+    view.setUint16(12, date, true)
     view.setUint16(26, entry.name.length, true)
     const crc = crc32(entry.data)
     view.setUint32(14, crc, true)
@@ -38,6 +48,8 @@ function downloadZip(files, zipName) {
     const cd = new Uint8Array(46 + entry.name.length)
     const cdv = new DataView(cd.buffer)
     cdv.setUint32(0, 0x02014b50, true)
+    cdv.setUint16(12, time, true)
+    cdv.setUint16(14, date, true)
     cdv.setUint32(16, crc, true)
     cdv.setUint32(20, entry.data.length, true)
     cdv.setUint32(24, entry.data.length, true)

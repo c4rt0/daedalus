@@ -48,14 +48,14 @@ Users and SSH keys are baked into the container image via `useradd` + `~/.ssh/au
 
 ## Supported output formats
 
-| Format | Use case |
-|--------|----------|
-| qcow2 | QEMU, libvirt, Proxmox |
-| ISO | Bare metal, USB install |
-| AMI | AWS |
-| VMDK | VMware |
-| VHD | Azure, Hyper-V |
-| GCE | Google Cloud |
+| Format | Use case | Status |
+|--------|----------|--------|
+| qcow2 | QEMU, libvirt, Proxmox | Verified |
+| AMI | AWS | Verified |
+| VMDK | VMware | Verified |
+| VHD | Azure, Hyper-V | Verified |
+| GCE | Google Cloud | Verified |
+| ISO | Bare metal, USB install | Requires legacy builder |
 
 ## Package presets
 

@@ -2,14 +2,16 @@ export function generateBuildScript(config) {
   const tag = config.hostname || 'my-os'
   const hasSshKeys = !!(config.sshKeys?.trim())
 
+  const imageBuilder = config.imageBuilder || 'image-builder'
+
   const sections = [
     header(tag),
     colorHelpers(),
     prerequisites(),
     buildImage(tag),
-    formatSelection(),
+    formatSelection(imageBuilder),
     diskImageQcow2(tag, hasSshKeys),
-    diskImageOther(tag),
+    diskImageOther(tag, imageBuilder),
     doneSection(hasSshKeys),
   ]
 
@@ -20,7 +22,9 @@ function header(tag) {
   return `#!/bin/bash
 set -euo pipefail
 
-IMAGE_TAG="${tag}"`
+IMAGE_TAG="${tag}"
+REAL_UID=\${SUDO_UID:-$(id -u)}
+REAL_GID=\${SUDO_GID:-$(id -g)}`
 }
 
 function colorHelpers() {
@@ -44,8 +48,9 @@ sudo podman build --net=host -t "$IMAGE_TAG" .
 success "Image '$IMAGE_TAG' built successfully"`
 }
 
-function formatSelection() {
-  return `echo ""
+function formatSelection(imageBuilder) {
+  if (imageBuilder === 'bootc-image-builder') {
+    return `echo ""
 info "What disk format do you want to generate?"
 echo ""
 PS3="Pick a number: "
@@ -66,6 +71,32 @@ do
     5) DISK_TYPE="vhd"; break;;
     6) DISK_TYPE="gce"; break;;
     7) success "Skipping disk image generation. Your container image is ready as '$IMAGE_TAG'."
+       exit 0;;
+    *) echo "Invalid choice, try again.";;
+  esac
+done`
+  }
+
+  return `echo ""
+info "What disk format do you want to generate?"
+info "(ISO is not supported with image-builder — select bootc-image-builder in the wizard for ISO builds)"
+echo ""
+PS3="Pick a number: "
+select FORMAT in \\
+  "qcow2    — VM image (QEMU, libvirt, Proxmox)" \\
+  "ami      — AWS AMI" \\
+  "vmdk     — VMware" \\
+  "vhd      — Azure / Hyper-V" \\
+  "gce      — Google Cloud" \\
+  "Skip     — I'll deploy differently"
+do
+  case "$REPLY" in
+    1) DISK_TYPE="qcow2"; break;;
+    2) DISK_TYPE="ami"; break;;
+    3) DISK_TYPE="vmdk"; break;;
+    4) DISK_TYPE="vhd"; break;;
+    5) DISK_TYPE="gce"; break;;
+    6) success "Skipping disk image generation. Your container image is ready as '$IMAGE_TAG'."
        exit 0;;
     *) echo "Invalid choice, try again.";;
   esac
@@ -115,12 +146,13 @@ ${sshArg}      /output/qcow2/disk.raw
   info "Converting to qcow2..."
   qemu-img convert -f raw -O qcow2 "$DISK_RAW" ./output/qcow2/disk.qcow2
   rm -f "$DISK_RAW"
-  sudo chown -R "$(id -u):$(id -g)" ./output
+  sudo chown -R "$REAL_UID:$REAL_GID" ./output
 fi`
 }
 
-function diskImageOther(tag) {
-  return `if [ "$DISK_TYPE" != "qcow2" ]; then
+function diskImageOther(tag, imageBuilder) {
+  if (imageBuilder === 'bootc-image-builder') {
+    return `if [ "$DISK_TYPE" != "qcow2" ]; then
   info "Generating $DISK_TYPE disk image..."
   mkdir -p ./output
 
@@ -131,7 +163,26 @@ function diskImageOther(tag) {
     --rootfs xfs --type "$DISK_TYPE" \\
     "localhost/$IMAGE_TAG"
 
-  sudo chown -R "$(id -u):$(id -g)" ./output
+  sudo chown -R "$REAL_UID:$REAL_GID" ./output
+fi`
+  }
+
+  return `if [ "$DISK_TYPE" != "qcow2" ]; then
+  info "Generating $DISK_TYPE disk image..."
+  mkdir -p ./output
+
+  BOOTC_ARGS="--bootc-ref localhost/$IMAGE_TAG --bootc-default-fs xfs"
+  if [ "$DISK_TYPE" = "bootc-installer" ]; then
+    BOOTC_ARGS="--bootc-ref localhost/$IMAGE_TAG --bootc-installer-payload-ref localhost/$IMAGE_TAG --bootc-default-fs xfs"
+  fi
+
+  sudo podman run --rm -it --privileged --net=host \\
+    -v /var/lib/containers/storage:/var/lib/containers/storage \\
+    -v ./output:/output \\
+    ghcr.io/osbuild/image-builder-cli:latest \\
+    build $BOOTC_ARGS "$DISK_TYPE"
+
+  sudo chown -R "$REAL_UID:$REAL_GID" ./output
 fi`
 }
 
@@ -162,7 +213,7 @@ case "$DISK_TYPE" in
     echo ""
     echo "  ssh -p 2222 ${sshCmd}root@localhost"
     ;;
-  anaconda-iso)
+  anaconda-iso|bootc-installer)
     success "Done! ISO at ./output/bootiso/install.iso"
     echo ""
     info "Write to USB:"

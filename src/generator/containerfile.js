@@ -118,6 +118,8 @@ function generateUsers(config) {
   const users = (config.users || []).filter(u => u.name)
   if (!users.length) return null
 
+  const hasWheel = users.some(u => (u.groups || []).includes('wheel'))
+
   const blocks = users.map(user => {
     const cmds = []
     const groups = (user.groups || []).filter(g => g && g !== 'sudo')
@@ -145,6 +147,10 @@ function generateUsers(config) {
 
     return `RUN ${cmds.join(' && \\\n    ')}`
   })
+
+  if (hasWheel) {
+    blocks.push(`RUN echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel-nopasswd && \\\n    chmod 440 /etc/sudoers.d/wheel-nopasswd`)
+  }
 
   return blocks.join('\n\n')
 }
@@ -189,17 +195,28 @@ function generateExtensions(config) {
 
   lines.push(`# Extensions (sysexts): ${unique.join(', ')}`)
 
+  lines.push(`RUN dnf install -y systemd-container && dnf clean all`)
+
   const configCmds = unique.map(ext =>
-    `mkdir -p /etc/sysupdate.${ext}.d && \\\n    curl -sL -o /etc/sysupdate.${ext}.d/${ext}.conf \\\n    https://extensions.fcos.fr/fedora/${ext}.conf`
+    `mkdir -p /etc/sysupdate.${ext}.d && \\\n    curl -sL -o /etc/sysupdate.${ext}.d/${ext}.transfer \\\n    https://extensions.fcos.fr/fedora/${ext}.conf`
   )
   lines.push(`RUN ${configCmds.join(' && \\\n    ')}`)
+
+  const scriptLines = unique.map(ext =>
+    `/usr/lib/systemd/systemd-sysupdate update --component=${ext}`
+  ).join('\\n')
+
+  lines.push(
+    `RUN printf '#!/bin/bash\\nset -e\\n${scriptLines}\\nsystemctl restart systemd-sysext\\ntouch /var/lib/.sysext-firstboot-done\\n' \\\n` +
+    `    > /usr/local/bin/sysext-firstboot.sh && \\\n` +
+    `    chmod +x /usr/local/bin/sysext-firstboot.sh`
+  )
 
   lines.push(
     `RUN printf '[Unit]\\nDescription=Download system extensions on first boot\\n` +
     `After=network-online.target\\nWants=network-online.target\\n` +
-    `ConditionFirstBoot=yes\\n\\n[Service]\\nType=oneshot\\n` +
-    `ExecStart=/usr/bin/systemd-sysupdate update\\n` +
-    `ExecStartPost=/usr/bin/systemctl restart systemd-sysext\\n\\n` +
+    `ConditionPathExists=!/var/lib/.sysext-firstboot-done\\n\\n[Service]\\nType=oneshot\\n` +
+    `ExecStart=/usr/local/bin/sysext-firstboot.sh\\n\\n` +
     `[Install]\\nWantedBy=multi-user.target\\n' \\\n` +
     `    > /usr/lib/systemd/system/sysext-firstboot.service && \\\n` +
     `    systemctl enable sysext-firstboot.service`

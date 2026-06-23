@@ -34,6 +34,8 @@ const initialState = {
   updateInterval: '8h',
   // Networking
   networkConfig: [],
+  // Build options
+  imageBuilder: 'image-builder',
   // System extensions (sysexts)
   extensions: [],
   customExtensions: '',
